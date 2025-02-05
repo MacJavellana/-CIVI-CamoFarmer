@@ -1,0 +1,22 @@
+# Dataset paths
+path: ./camocrops
+train: images/train
+val: images/validate
+test: images/test
+
+names:
+  0: ampalaya
+  1: atis
+  2: avocado
+  3: bell_pepper
+  4: calamansi
+  5: cucumber
+  6: dalandan
+  7: french_bean
+  8: green_chili
+  9: green_mango
+  10: guava
+  11: guyabano
+  12: okra
+  13: pea
+  14: sayote
