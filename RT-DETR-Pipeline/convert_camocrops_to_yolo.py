@@ -122,7 +122,7 @@ def verify_dataset(dest_base):
 
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    source_base = os.path.join(base_dir, "CamoCrops_2025")
+    source_base = os.path.join(base_dir, "toConvertDataset/CamoCrops_2025")
     dest_base = os.path.join(base_dir, "datasets", "camocrops")
     
     print(f"Source base path: {source_base}")
