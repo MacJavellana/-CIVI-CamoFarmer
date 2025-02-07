@@ -120,6 +120,40 @@ def verify_dataset(dest_base):
     
     return all_correct
 
+def create_combined_trainval(dest_base):
+    print("\nCreating combined train+val dataset...")
+    combined_dir = os.path.join(dest_base, 'images/combined_trainval')
+    combined_labels_dir = os.path.join(dest_base, 'labels/combined_trainval')
+    
+    # Create combined directories
+    os.makedirs(combined_dir, exist_ok=True)
+    os.makedirs(combined_labels_dir, exist_ok=True)
+    
+    # Copy train files
+    train_images = os.path.join(dest_base, 'images/train')
+    train_labels = os.path.join(dest_base, 'labels/train')
+    
+    for img in os.listdir(train_images):
+        shutil.copy2(os.path.join(train_images, img), combined_dir)
+        base_name = os.path.splitext(img)[0]
+        label = base_name + '.txt'
+        if os.path.exists(os.path.join(train_labels, label)):
+            shutil.copy2(os.path.join(train_labels, label), combined_labels_dir)
+    
+    # Copy validation files
+    val_images = os.path.join(dest_base, 'images/validate')
+    val_labels = os.path.join(dest_base, 'labels/validate')
+    
+    for img in os.listdir(val_images):
+        shutil.copy2(os.path.join(val_images, img), combined_dir)
+        base_name = os.path.splitext(img)[0]
+        label = base_name + '.txt'
+        if os.path.exists(os.path.join(val_labels, label)):
+            shutil.copy2(os.path.join(val_labels, label), combined_labels_dir)
+    
+    print("Combined train+val dataset created successfully!")
+
+
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))
     source_base = os.path.join(base_dir, "toConvertDataset/CamoCrops_2025")
@@ -133,3 +167,4 @@ if __name__ == "__main__":
     print("Dataset conversion and organization completed!")
     
     verify_dataset(dest_base)
+    create_combined_trainval(dest_base)

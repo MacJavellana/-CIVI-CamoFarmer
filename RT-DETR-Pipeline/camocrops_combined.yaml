@@ -1,8 +1,7 @@
-# Dataset paths
 path: ./datasets/camocrops
-train: images/train
-val: images/validate
+train: images/combined_trainval
 test: images/test
+
 
 names:
   0: ampalaya
