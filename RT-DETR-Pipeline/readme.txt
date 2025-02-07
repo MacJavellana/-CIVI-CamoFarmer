@@ -17,6 +17,4 @@ eval.py Pipeline:
     Generates performance metrics
     Saves results in runs/detect/[dataset]/final_evaluation_test/
 
-todo/haven't implemented/never implemented:
-    can't use checkpoint which you would need to modify the code to access the checkpoint in their respective folders
     
