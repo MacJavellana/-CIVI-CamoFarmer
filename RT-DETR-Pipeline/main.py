@@ -74,8 +74,8 @@ def hyperparameter_tuning(base_config):
                     model = RTDETR(config['model'] + '.pt')
                     results = train_model(model, config)
                     
-                    if results.maps50 > best_map50:
-                        best_map50 = results.maps50
+                    if results.box.map50 > best_map50:
+                        best_map50 = results.box.map50
                         best_config = {
                             'batch_size': batch_size,
                             'img_size': img_size,
