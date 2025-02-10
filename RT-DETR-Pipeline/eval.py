@@ -40,7 +40,8 @@ def write_results(name, metrics):
 
 def evaluate_final_model(dataset_config, base_path, imgsz, batch):
     # Look for the model in the 'final' folder
-    final_folder = os.path.join(base_path, 'final')
+    final_folder = os.path.join(base_path, 'final', 'weights')
+
     if not os.path.exists(final_folder):
         print(f"Final training folder not found at {final_folder}")
         return None
