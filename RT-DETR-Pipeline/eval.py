@@ -38,12 +38,24 @@ def write_results(name, metrics):
         file.write(str(metrics.box.map))
 
 
-def evaluate_final_model(dataset_config, base_path, weights_path, imgsz, batch):
-    final_model_path = os.path.join(weights_path, 'final.pt')
-    if not os.path.exists(final_model_path):
-        print("Final model not found!")
+def evaluate_final_model(dataset_config, base_path, imgsz, batch):
+    # Look for the model in the 'final' folder
+    final_folder = os.path.join(base_path, 'final')
+    if not os.path.exists(final_folder):
+        print(f"Final training folder not found at {final_folder}")
         return None
-        
+    
+    # Get the latest weights file from the final folder
+    weights_files = [f for f in os.listdir(final_folder) if f.endswith('.pt')]
+    if not weights_files:
+        print("No weight files found in final folder!")
+        return None
+    
+    # Sort by modification time and get the latest
+    latest_weights = max(weights_files, key=lambda x: os.path.getmtime(os.path.join(final_folder, x)))
+    final_model_path = os.path.join(final_folder, latest_weights)
+    
+    print(f"Using model: {final_model_path}")
     model = RTDETR(final_model_path)
     name = "final_evaluation"
     
@@ -68,16 +80,15 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Settings
-    imgsz = 300
+    imgsz = 320  # Match the training image size
     batch = 1
     
     # Get dataset specific paths
     dataset_config = DATASET_CONFIGS[args.dataset]
     base_path = dataset_config['project']
-    weights_path = os.path.join(base_path, "weights")
     
     # Evaluate Final Model
-    test_metrics = evaluate_final_model(dataset_config, base_path, weights_path, imgsz, batch)
+    test_metrics = evaluate_final_model(dataset_config, base_path, imgsz, batch)
     
     if test_metrics:
         print("\nFinal Evaluation Results:")
