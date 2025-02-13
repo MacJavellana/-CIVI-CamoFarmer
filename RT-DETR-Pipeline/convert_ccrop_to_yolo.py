@@ -17,19 +17,16 @@ def convert_bbox_to_yolo(size, box):
     return (x*dw, y*dh, w*dw, h*dh)
 
 def convert_and_copy(source_base, dest_base):
-    # Create destination directories
-    for split in ['train', 'test', 'validate']:
+    # Create destination directories for regular splits
+    for split in ['train', 'test', 'validate', 'combined']:
         os.makedirs(f"{dest_base}/images/{split}", exist_ok=True)
         os.makedirs(f"{dest_base}/labels/{split}", exist_ok=True)
 
     # Process each class directory
     for class_name in CLASSES.keys():
         class_dir = os.path.join(source_base, class_name)
-        
-        # Get all XML files in the class directory
         xml_files = [f for f in os.listdir(class_dir) if f.endswith('.xml')]
         
-        # Split files into train/test/validate (80/10/10)
         total_files = len(xml_files)
         train_split = int(0.8 * total_files)
         val_split = int(0.1 * total_files)
@@ -37,12 +34,13 @@ def convert_and_copy(source_base, dest_base):
         train_files = xml_files[:train_split]
         val_files = xml_files[train_split:train_split + val_split]
         test_files = xml_files[train_split + val_split:]
+        combined_files = train_files + val_files  # Combine train and validate
         
-        # Process files for each split
         splits = {
             'train': train_files,
             'validate': val_files,
-            'test': test_files
+            'test': test_files,
+            'combined': combined_files
         }
         
         for split_name, files in splits.items():
@@ -51,7 +49,6 @@ def convert_and_copy(source_base, dest_base):
                 tree = ET.parse(os.path.join(class_dir, xml_file))
                 root = tree.getroot()
                 
-                # Get image size
                 size = root.find('size')
                 width = int(size.find('width').text)
                 height = int(size.find('height').text)
@@ -81,8 +78,9 @@ def convert_and_copy(source_base, dest_base):
                         )
                         break
 
+
 def verify_dataset(dest_base):
-    splits = ['train', 'test', 'validate']
+    splits = ['train', 'test', 'validate', 'combined']
     all_correct = True
     stats = {split: {'images': 0, 'labels': 0, 'mismatches': 0} for split in splits}
     
@@ -121,6 +119,7 @@ def verify_dataset(dest_base):
         print("\nVerification Found Issues! Please check the mismatches above.")
     
     return all_correct
+
 
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))
