@@ -26,8 +26,8 @@ DATASET_CONFIGS = {
 
 # Hyperparameter configurations
 HYPERPARAMETERS = {
-    'batch_sizes': [16, 32],
-    'img_sizes': [320, 640],
+    'batch_sizes': [16],
+    'img_sizes': [320, 400],
     'optimizers': ['SGD', 'Adam', 'AdamW', 'RMSProp'],
     'learning_rates': [0.001, 0.01, 0.1]
 }
@@ -126,6 +126,7 @@ def hyperparameter_tuning(base_config):
                             print(f"New best configuration found! mAP50: {best_map50}")
                             
                         save_checkpoint(best_config, best_map50)
+                        torch.cuda.empty_cache()
                         
                     except KeyboardInterrupt:
                         print("\nTraining interrupted! Progress saved.")
@@ -133,8 +134,54 @@ def hyperparameter_tuning(base_config):
                     except Exception as e:
                         print(f"Error with configuration: {e}")
                         continue
+
+                    
     
     return best_config, best_map50
+
+def find_best_configuration(project_dir):
+    best_map50 = 0
+    best_config = None
+    
+    if not os.path.exists(project_dir):
+        print(f"Project directory {project_dir} not found!")
+        return None, 0
+    
+    # Scan through all tune directories
+    for folder in os.listdir(project_dir):
+        if folder.startswith('tune_b'):
+            try:
+                # Parse configuration from folder name
+                parts = folder.split('_')
+                batch_size = int(parts[1][1:])  # Remove 'b'
+                img_size = int(parts[2][1:])    # Remove 'i'
+                optimizer = parts[3]
+                lr = float(parts[4][2:])        # Remove 'lr'
+                
+                # Look for results.csv in the folder
+                results_path = os.path.join(project_dir, folder, 'results.csv')
+                if os.path.exists(results_path):
+                    import pandas as pd
+                    results = pd.read_csv(results_path)
+                    if not results.empty:
+                        map50 = results['metrics/mAP50(B)'].max()
+                        
+                        if map50 > best_map50:
+                            best_map50 = map50
+                            best_config = {
+                                'batch_size': batch_size,
+                                'img_size': img_size,
+                                'optimizer': optimizer,
+                                'learning_rate': lr
+                            }
+                            print(f"Found better configuration with mAP50: {map50}")
+                            print(f"Configuration: {best_config}")
+            except Exception as e:
+                print(f"Error processing folder {folder}: {e}")
+                continue
+    
+    return best_config, best_map50
+
 
 def final_training(config):
     print("\nStarting final training with best parameters...")
@@ -142,18 +189,18 @@ def final_training(config):
     model = RTDETR(config['model'] + '.pt')
     return train_model(model, config)
 
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', type=str, required=True, choices=DATASET_CONFIGS.keys(),
                        help='Dataset to use: TomatOD, CCrop, or CamoCrops')
     args = parser.parse_args()
 
-    """
     # Base configuration
     base_config = {
         'model': 'rtdetr-l',
         'data': DATASET_CONFIGS[args.dataset]['yaml'],
-        'epochs': 50,
+        'epochs': 3,
         'batch': 32,
         'workers': 2,
         'imgsz': 320,
@@ -168,51 +215,47 @@ if __name__ == '__main__':
         'name': 'tune'
     }
 
-    # Load previous progress if exists
-    best_config, best_map50 = load_checkpoint()
-    if best_config:
-        print(f"Resuming from previous checkpoint with mAP50: {best_map50}")
+    # Calculate total expected configurations
+    total_expected_configs = (
+        len(HYPERPARAMETERS['batch_sizes']) *
+        len(HYPERPARAMETERS['img_sizes']) *
+        len(HYPERPARAMETERS['optimizers']) *
+        len(HYPERPARAMETERS['learning_rates'])
+    )
+
+    # Get completed configurations
+    completed_configs = get_completed_configs()
+    print(f"Total expected configurations: {total_expected_configs}")
+    print(f"Completed configurations: {len(completed_configs)}")
+
+    if len(completed_configs) < total_expected_configs:
+        # Need to run more hyperparameter tuning
+        print("Continuing hyperparameter tuning...")
+        best_config, best_map50 = hyperparameter_tuning(base_config)
     
-    # Phase 1: Hyperparameter Tuning
-    print("Starting hyperparameter tuning...")
-    best_config, best_map50 = hyperparameter_tuning(base_config)
-    
+    # All configurations completed, find the best one
+    print("All hyperparameter combinations tested. Finding best configuration...")
+    best_config, best_map50 = find_best_configuration(base_config['project'])
+
     print("\nBest Configuration Found:")
     print(f"Batch Size: {best_config['batch_size']}")
     print(f"Image Size: {best_config['img_size']}")
     print(f"Optimizer: {best_config['optimizer']}")
     print(f"Learning Rate: {best_config['learning_rate']}")
     print(f"Best mAP50: {best_map50}")
-    
-    # Update config with best parameters
+
+    # Update config with best parameters for final training
     base_config.update({
         'batch': best_config['batch_size'],
         'imgsz': best_config['img_size'],
         'optimizer': best_config['optimizer'],
         'lr': best_config['learning_rate'],
-        'name': 'final'
-    })
-    """
-
-    # best hyperparameter as of 02/08/2025
-    base_config = {
-        'model': 'rtdetr-l',
-        'data': DATASET_CONFIGS[args.dataset]['yaml'],
-        'epochs': 100,
-        'batch': 16,
-        'workers': 2,
-        'imgsz': 320,
-        'device': 0,
-        'cache': True,
-        'amp': False,
-        'val': True,
-        'save_period': 1,
-        'optimizer': 'AdamW',
-        'lr': 0.001,
-        'project': DATASET_CONFIGS[args.dataset]['project'],
         'name': 'final',
-        'seed': 42
-    }
+        'epochs': 100,  # Increase epochs for final training
+        'val': False,   # No validation needed for final training
+        'data': DATASET_CONFIGS[args.dataset]['yaml_combined']  # Use combined dataset
+    })
 
     # Phase 2: Final Training
+    print("\nStarting final training with best parameters...")
     train_results = final_training(base_config)
