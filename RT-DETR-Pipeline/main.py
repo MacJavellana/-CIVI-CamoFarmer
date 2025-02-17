@@ -32,22 +32,6 @@ HYPERPARAMETERS = {
     'learning_rates': [0.001, 0.01, 0.1]
 }
 
-def create_epoch_logger(output_file):
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w') as f:
-        f.write("Training Results Log\n")
-        f.write("===================\n\n")
-    
-    def log_epoch(trainer):
-        epoch = trainer.epoch
-        metrics = trainer.metrics
-        with open(output_file, 'a') as f:
-            f.write(f"Epoch {epoch}:\n")
-            f.write(f"Loss: {metrics.get('train/box_loss', 'N/A'):.6f}\n")
-            f.write(f"mAP50: {metrics.get('metrics/mAP50(B)', 'N/A'):.6f}\n")
-            f.write("-----------------\n")
-    return log_epoch
-
 def train_model(model, config):
     return model.train(
         data=config['data'],
@@ -63,8 +47,7 @@ def train_model(model, config):
         optimizer=config['optimizer'],
         lr0=config['lr'],
         project=config['project'],
-        name=config['name'],
-        callbacks=config.get('callbacks', None)
+        name=config['name']
     )
 
 def get_completed_configs():
@@ -73,52 +56,27 @@ def get_completed_configs():
         for folder in os.listdir(base_config['project']):
             if folder.startswith('tune_b'):
                 parts = folder.split('_')
-                batch = parts[1][1:]
-                img = parts[2][1:]
+                batch = parts[1][1:]  # Remove 'b'
+                img = parts[2][1:]    # Remove 'i'
                 opt = parts[3]
-                lr = parts[4][2:]
+                lr = parts[4][2:]     # Remove 'lr'
                 completed.add((int(batch), int(img), opt, float(lr)))
     return completed
 
-def find_best_configuration(project_dir):
-    best_map50 = 0
-    best_config = None
-    
-    if not os.path.exists(project_dir):
-        print(f"Project directory {project_dir} not found!")
-        return None, 0
-    
-    for folder in os.listdir(project_dir):
-        if folder.startswith('tune_b'):
-            try:
-                parts = folder.split('_')
-                batch_size = int(parts[1][1:])
-                img_size = int(parts[2][1:])
-                optimizer = parts[3]
-                lr = float(parts[4][2:])
-                
-                results_path = os.path.join(project_dir, folder, 'results.csv')
-                if os.path.exists(results_path):
-                    import pandas as pd
-                    results = pd.read_csv(results_path)
-                    if not results.empty:
-                        map50 = results['metrics/mAP50(B)'].max()
-                        
-                        if map50 > best_map50:
-                            best_map50 = map50
-                            best_config = {
-                                'batch_size': batch_size,
-                                'img_size': img_size,
-                                'optimizer': optimizer,
-                                'learning_rate': lr
-                            }
-                            print(f"Found better configuration with mAP50: {map50}")
-                            print(f"Configuration: {best_config}")
-            except Exception as e:
-                print(f"Error processing folder {folder}: {e}")
-                continue
-    
-    return best_config, best_map50
+def save_checkpoint(best_config, best_map50):
+    checkpoint = {
+        'best_config': best_config,
+        'best_map50': best_map50
+    }
+    checkpoint_path = os.path.join(base_config['project'], 'tuning_checkpoint.pt')
+    torch.save(checkpoint, checkpoint_path)
+
+def load_checkpoint():
+    checkpoint_path = os.path.join(base_config['project'], 'tuning_checkpoint.pt')
+    if os.path.exists(checkpoint_path):
+        checkpoint = torch.load(checkpoint_path)
+        return checkpoint['best_config'], checkpoint['best_map50']
+    return None, 0
 
 def hyperparameter_tuning(base_config):
     best_map50 = 0
@@ -166,7 +124,8 @@ def hyperparameter_tuning(base_config):
                                 'learning_rate': lr
                             }
                             print(f"New best configuration found! mAP50: {best_map50}")
-                        
+                            
+                        save_checkpoint(best_config, best_map50)
                         torch.cuda.empty_cache()
                         
                     except KeyboardInterrupt:
@@ -175,14 +134,78 @@ def hyperparameter_tuning(base_config):
                     except Exception as e:
                         print(f"Error with configuration: {e}")
                         continue
+
+                    
     
     return best_config, best_map50
 
+def find_best_configuration(project_dir):
+    best_map50 = 0
+    best_config = None
+    
+    if not os.path.exists(project_dir):
+        print(f"Project directory {project_dir} not found!")
+        return None, 0
+    
+    # Scan through all tune directories
+    for folder in os.listdir(project_dir):
+        if folder.startswith('tune_b'):
+            try:
+                # Parse configuration from folder name
+                parts = folder.split('_')
+                batch_size = int(parts[1][1:])  # Remove 'b'
+                img_size = int(parts[2][1:])    # Remove 'i'
+                optimizer = parts[3]
+                lr = float(parts[4][2:])        # Remove 'lr'
+                
+                # Look for results.csv in the folder
+                results_path = os.path.join(project_dir, folder, 'results.csv')
+                if os.path.exists(results_path):
+                    import pandas as pd
+                    results = pd.read_csv(results_path)
+                    if not results.empty:
+                        map50 = results['metrics/mAP50(B)'].max()
+                        
+                        if map50 > best_map50:
+                            best_map50 = map50
+                            best_config = {
+                                'batch_size': batch_size,
+                                'img_size': img_size,
+                                'optimizer': optimizer,
+                                'learning_rate': lr
+                            }
+                            print(f"Found better configuration with mAP50: {map50}")
+                            print(f"Configuration: {best_config}")
+            except Exception as e:
+                print(f"Error processing folder {folder}: {e}")
+                continue
+    
+    return best_config, best_map50
+
+def create_epoch_logger(output_file):
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    with open(output_file, 'w') as f:
+        f.write("Training Results Log\n")
+        f.write("===================\n\n")
+    
+    def log_epoch(trainer):
+        epoch = trainer.epoch
+        metrics = trainer.metrics
+        with open(output_file, 'a') as f:
+            f.write(f"Epoch {epoch}:\n")
+            f.write(f"Loss: {metrics.get('train/box_loss', 'N/A'):.6f}\n")
+            f.write(f"mAP50: {metrics.get('metrics/mAP50(B)', 'N/A'):.6f}\n")
+            f.write("-----------------\n")
+    return log_epoch
+
+
 def final_training(config):
     print("\nStarting final training with best parameters...")
+    config['data'] = DATASET_CONFIGS[args.dataset]['yaml_combined']
     model = RTDETR(config['model'] + '.pt')
     return train_model(model, config)
 
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset', type=str, required=True, choices=DATASET_CONFIGS.keys(),
@@ -222,9 +245,11 @@ if __name__ == '__main__':
     print(f"Completed configurations: {len(completed_configs)}")
 
     if len(completed_configs) < total_expected_configs:
+        # Need to run more hyperparameter tuning
         print("Continuing hyperparameter tuning...")
         best_config, best_map50 = hyperparameter_tuning(base_config)
     
+    # All configurations completed, find the best one
     print("All hyperparameter combinations tested. Finding best configuration...")
     best_config, best_map50 = find_best_configuration(base_config['project'])
 
@@ -243,9 +268,9 @@ if __name__ == '__main__':
         'optimizer': best_config['optimizer'],
         'lr': best_config['learning_rate'],
         'name': 'final',
-        'epochs': 100,
-        'val': False,
-        'data': DATASET_CONFIGS[args.dataset]['yaml_combined'],
+        'epochs': 15,  # Increase epochs for final training
+        'val': False,   # No validation needed for final training
+        'data': DATASET_CONFIGS[args.dataset]['yaml_combined'],  # Use combined dataset
         'callbacks': {'on_train_epoch_end': create_epoch_logger(output_file)}
     })
 
