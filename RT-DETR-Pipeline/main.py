@@ -182,23 +182,6 @@ def find_best_configuration(project_dir):
     
     return best_config, best_map50
 
-def create_epoch_logger(output_file):
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w') as f:
-        f.write("Training Results Log\n")
-        f.write("===================\n\n")
-    
-    def log_epoch(trainer):
-        epoch = trainer.epoch
-        metrics = trainer.metrics
-        with open(output_file, 'a') as f:
-            f.write(f"Epoch {epoch}:\n")
-            f.write(f"Loss: {metrics.get('train/box_loss', 'N/A'):.6f}\n")
-            f.write(f"mAP50: {metrics.get('metrics/mAP50(B)', 'N/A'):.6f}\n")
-            f.write("-----------------\n")
-    return log_epoch
-
-
 def final_training(config):
     print("\nStarting final training with best parameters...")
     config['data'] = DATASET_CONFIGS[args.dataset]['yaml_combined']
@@ -261,7 +244,6 @@ if __name__ == '__main__':
     print(f"Best mAP50: {best_map50}")
 
     # Update config with best parameters for final training
-    output_file = os.path.join(base_config['project'], 'final', 'epoch_results.txt')
     base_config.update({
         'batch': best_config['batch_size'],
         'imgsz': best_config['img_size'],
@@ -270,8 +252,7 @@ if __name__ == '__main__':
         'name': 'final',
         'epochs': 15,  # Increase epochs for final training
         'val': False,   # No validation needed for final training
-        'data': DATASET_CONFIGS[args.dataset]['yaml_combined'],  # Use combined dataset
-        'callbacks': {'on_train_epoch_end': create_epoch_logger(output_file)}
+        'data': DATASET_CONFIGS[args.dataset]['yaml_combined']  # Use combined dataset
     })
 
     # Phase 2: Final Training

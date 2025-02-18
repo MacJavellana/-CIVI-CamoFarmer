@@ -1,5 +1,6 @@
-path: ./datasets/camocrops
+path: ./camocrops
 train: images/combined_trainval
+val: images/validate
 test: images/test
 
 

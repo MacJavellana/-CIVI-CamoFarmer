@@ -1,0 +1,11 @@
+# Dataset paths
+path: ./datasets/tomatod
+train: images/train
+val: images/validate
+test: images/test
+
+names:
+  0: unripe
+  1: semi-ripe
+  2: fully-ripe
+

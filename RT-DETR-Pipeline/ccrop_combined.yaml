@@ -1,0 +1,9 @@
+path: ./ccrop
+train: images/combined_trainval
+val: images/validate
+test: images/test
+
+
+names:
+  0: Bellpepper
+  1: CHILIPEPPER

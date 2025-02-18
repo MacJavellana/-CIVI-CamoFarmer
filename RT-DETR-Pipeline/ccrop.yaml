@@ -1,0 +1,9 @@
+# Dataset paths
+path: ./ccrop
+train: images/train
+val: images/validate
+test: images/test
+
+names:
+  0: Bellpepper
+  1: CHILIPEPPER
