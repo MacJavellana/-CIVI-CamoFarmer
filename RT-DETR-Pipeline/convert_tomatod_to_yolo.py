@@ -3,7 +3,7 @@ import shutil
 
 def setup_directories(dest_base):
     # Create destination directories
-    for split in ['train', 'test', 'validate', 'combined']:
+    for split in ['train', 'test', 'validate', 'combined_trainval']:
         os.makedirs(f"{dest_base}/images/{split}", exist_ok=True)
         os.makedirs(f"{dest_base}/labels/{split}", exist_ok=True)
 
@@ -38,10 +38,10 @@ def copy_dataset(source_base, dest_base):
                 os.path.join(dest_label_path, label)
             )
         
-        # If this is train or validate, also copy to combined
+        # If this is train or validate, also copy to combined_trainval
         if src_split in ['train', 'val']:
-            dest_combined_img = os.path.join(dest_base, 'images', 'combined')
-            dest_combined_label = os.path.join(dest_base, 'labels', 'combined')
+            dest_combined_img = os.path.join(dest_base, 'images', 'combined_trainval')
+            dest_combined_label = os.path.join(dest_base, 'labels', 'combined_trainval')
             
             for img in os.listdir(src_img_path):
                 shutil.copy2(
@@ -56,7 +56,7 @@ def copy_dataset(source_base, dest_base):
                 )
 
 def verify_dataset(dest_base):
-    splits = ['train', 'test', 'validate', 'combined']
+    splits = ['train', 'test', 'validate', 'combined_trainval']
     all_correct = True
     stats = {split: {'images': 0, 'labels': 0, 'mismatches': 0} for split in splits}
     
