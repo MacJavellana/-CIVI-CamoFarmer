@@ -32,6 +32,22 @@ HYPERPARAMETERS = {
     'learning_rates': [0.001, 0.01, 0.1]
 }
 
+
+def get_latest_training_run(project_dir):
+    final_dir = os.path.join(project_dir, 'final')
+    if os.path.exists(final_dir):
+        weights_dir = os.path.join(final_dir, 'weights')
+        if os.path.exists(weights_dir):
+            weights = [f for f in os.listdir(weights_dir) if f.endswith('.pt')]
+            if weights:
+                # Sort by epoch number
+                weights.sort(key=lambda x: int(x.split('_')[1].split('.')[0]))
+                latest_weight = weights[-1]
+                return os.path.join(weights_dir, latest_weight)
+    return None
+
+
+
 def train_model(model, config):
     return model.train(
         data=config['data'],
@@ -254,6 +270,18 @@ if __name__ == '__main__':
         'val': False,   # No validation needed for final training
         'data': DATASET_CONFIGS[args.dataset]['yaml_combined']  # Use combined dataset
     })
+
+
+    latest_weights = get_latest_training_run(base_config['project'])
+    if latest_weights:
+        print(f"Found existing training weights: {latest_weights}")
+        base_config.update({
+            'resume': True,
+            'weights': latest_weights
+        })
+        print("Continuing training from last checkpoint...")
+    else:
+        print("Starting new training...")
 
     # Phase 2: Final Training
     print("\nStarting final training with best parameters...")
