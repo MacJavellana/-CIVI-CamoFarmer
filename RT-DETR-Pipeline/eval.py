@@ -88,7 +88,7 @@ def evaluate_final_model(dataset_config, base_path, imgsz, batch):
         project=base_path,
         name=name + "_test"
     )
-    write_results(os.path.join(base_path, name + "_test"), metrics)
+    write_results(os.path.join(base_path, name + "_test"), metrics, model)
     return metrics
 
 
