@@ -26,8 +26,8 @@ DATASET_CONFIGS = {
 
 # Hyperparameter configurations
 HYPERPARAMETERS = {
-    'batch_sizes': [16],
-    'img_sizes': [320, 400],
+    'batch_sizes': [16, 32],
+    'img_sizes': [320,640],
     'optimizers': ['SGD', 'Adam', 'AdamW', 'RMSProp'],
     'learning_rates': [0.001, 0.01, 0.1]
 }
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     base_config = {
         'model': 'rtdetr-l',
         'data': DATASET_CONFIGS[args.dataset]['yaml'],
-        'epochs': 3,
+        'epochs': 10,
         'batch': 32,
         'workers': 2,
         'imgsz': 320,
@@ -243,20 +243,32 @@ if __name__ == '__main__':
     print(f"Learning Rate: {best_config['learning_rate']}")
     print(f"Best mAP50: {best_map50}")
 
-    # Update config with best parameters for final training
-    base_config.update({
-        'batch': best_config['batch_size'],
-        'imgsz': best_config['img_size'],
-        'optimizer': best_config['optimizer'],
-        'lr': best_config['learning_rate'],
-        'name': 'final',
-        'epochs': 15,  # Increase epochs for final training
-        'val': False,   # No validation needed for final training
-        'data': DATASET_CONFIGS[args.dataset]['yaml_combined']  # Use combined dataset
-    })
+    
 
 
+    rtdetr_models = ['rtdetr-l', 'rtdetr-x']
 
-    # Phase 2: Final Training
-    print("\nStarting final training with best parameters...")
-    train_results = final_training(base_config)
+    
+    for model_variant in rtdetr_models:
+        print(f"\nStarting training with {model_variant}")
+        base_config['model'] = model_variant
+        
+        # Training loop for different epoch amounts
+        for epochs in range(15, 91, 15):  # Will run for 15, 30, 45, 60, 75, 90 epochs
+            base_config.update({
+                'batch': best_config['batch_size'],
+                'imgsz': best_config['img_size'],
+                'optimizer': best_config['optimizer'],
+                'lr': best_config['learning_rate'],
+                'name': f'final_{model_variant}_{epochs}epochs',  # Unique name for each model and epoch
+                'epochs': epochs,
+                'val': False,
+                'data': DATASET_CONFIGS[args.dataset]['yaml_combined']
+            })
+
+            print(f"\nStarting training for {model_variant} with {epochs} epochs...")
+            train_results = final_training(base_config)
+            
+            # Clear GPU memory after each training run
+            torch.cuda.empty_cache()
+            print(f"Completed {model_variant} {epochs} epochs training, memory cleared!")
