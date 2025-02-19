@@ -25,17 +25,31 @@ DATASET_CONFIGS = {
 }
 
 def write_results(name, metrics):
-    with open(name + '/ap50.txt', 'a') as file:
+    # Create directory if it doesn't exist
+    os.makedirs(name, exist_ok=True)
+    
+    # Write AP50 and mAP50
+    with open(os.path.join(name, 'ap50.txt'), 'w') as file:
         for ap50 in metrics.box.ap50:
-            file.write(str(ap50) + '\n')
+            file.write(f"{ap50:.6f}\n")
         file.write('\n')
-        file.write(str(metrics.box.map50))
+        file.write(f"{metrics.box.map50:.6f}")
 
-    with open(name + '/maps.txt', 'a') as file:
+    # Write mAPs
+    with open(os.path.join(name, 'maps.txt'), 'w') as file:
         for maps in metrics.box.maps:
-            file.write(str(maps) + '\n')
+            file.write(f"{maps:.6f}\n")
         file.write('\n')
-        file.write(str(metrics.box.map))
+        file.write(f"{metrics.box.map:.6f}")
+    
+    # Write CSV with all metrics
+    with open(os.path.join(name, 'results.csv'), 'w') as file:
+        file.write("Metric,Value\n")
+        file.write(f"mAP50,{metrics.box.map50:.6f}\n")
+        file.write(f"mAP50-95,{metrics.box.map:.6f}\n")
+        for i, ap50 in enumerate(metrics.box.ap50):
+            file.write(f"AP50_class_{i},{ap50:.6f}\n")
+
 
 def evaluate_final_model(dataset_config, base_path, imgsz, batch):
     final_folder = os.path.join(base_path, 'final', 'weights')
