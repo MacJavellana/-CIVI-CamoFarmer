@@ -40,10 +40,16 @@ def get_latest_training_run(project_dir):
         if os.path.exists(weights_dir):
             weights = [f for f in os.listdir(weights_dir) if f.endswith('.pt')]
             if weights:
-                # Sort by epoch number, removing 'epoch' prefix
-                weights.sort(key=lambda x: int(x.split('epoch')[1].split('.')[0]))
-                latest_weight = weights[-1]
-                return os.path.join(weights_dir, latest_weight)
+                # First check for 'last.pt' as it's always the most recent
+                if 'last.pt' in weights:
+                    return os.path.join(weights_dir, 'last.pt')
+                
+                # Filter only epoch weights
+                epoch_weights = [w for w in weights if w.startswith('epoch')]
+                if epoch_weights:
+                    # Sort by epoch number
+                    epoch_weights.sort(key=lambda x: int(x.split('epoch')[1].split('.')[0]))
+                    return os.path.join(weights_dir, epoch_weights[-1])
     return None
 
 
