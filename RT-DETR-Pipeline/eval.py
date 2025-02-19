@@ -37,22 +37,18 @@ def write_results(name, metrics):
         file.write('\n')
         file.write(str(metrics.box.map))
 
-
 def evaluate_final_model(dataset_config, base_path, imgsz, batch):
-    # Look for the model in the 'final' folder
     final_folder = os.path.join(base_path, 'final', 'weights')
 
     if not os.path.exists(final_folder):
         print(f"Final training folder not found at {final_folder}")
         return None
     
-    # Get the latest weights file from the final folder
     weights_files = [f for f in os.listdir(final_folder) if f.endswith('.pt')]
     if not weights_files:
         print("No weight files found in final folder!")
         return None
     
-    # Sort by modification time and get the latest
     latest_weights = max(weights_files, key=lambda x: os.path.getmtime(os.path.join(final_folder, x)))
     final_model_path = os.path.join(final_folder, latest_weights)
     
@@ -72,6 +68,7 @@ def evaluate_final_model(dataset_config, base_path, imgsz, batch):
     )
     write_results(os.path.join(base_path, name + "_test"), metrics)
     return metrics
+
 
 
 if __name__ == '__main__':
