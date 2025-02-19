@@ -24,31 +24,39 @@ DATASET_CONFIGS = {
     }
 }
 
-def write_results(name, metrics):
-    # Create directory if it doesn't exist
+def write_results(name, metrics, model):
     os.makedirs(name, exist_ok=True)
     
-    # Write AP50 and mAP50
-    with open(os.path.join(name, 'ap50.txt'), 'w') as file:
-        for ap50 in metrics.box.ap50:
-            file.write(f"{ap50:.6f}\n")
-        file.write('\n')
-        file.write(f"{metrics.box.map50:.6f}")
-
-    # Write mAPs
-    with open(os.path.join(name, 'maps.txt'), 'w') as file:
-        for maps in metrics.box.maps:
-            file.write(f"{maps:.6f}\n")
-        file.write('\n')
-        file.write(f"{metrics.box.map:.6f}")
-    
-    # Write CSV with all metrics
     with open(os.path.join(name, 'results.csv'), 'w') as file:
         file.write("Metric,Value\n")
+        
+        # Model Information
+        file.write(f"Model,{model.model.name}\n")
+        file.write(f"Version,{model.model.version}\n")
+        file.write(f"Parameters,{model.model.num_params}\n")
+        file.write(f"GFLOPs,{model.model.flops}\n")
+        
+        # Training Configuration
+        file.write(f"Optimizer,{model.trainer.args.optimizer}\n")
+        file.write(f"Batch Size,{model.trainer.args.batch}\n")
+        file.write(f"Image Size,{model.trainer.args.imgsz}\n")
+        file.write(f"Initial Learning Rate,{model.trainer.args.lr0}\n")
+        file.write(f"Final Learning Rate,{model.trainer.args.lrf}\n")
+        file.write(f"Total Epochs,{model.trainer.epochs}\n")
+        
+        # Performance Metrics
         file.write(f"mAP50,{metrics.box.map50:.6f}\n")
         file.write(f"mAP50-95,{metrics.box.map:.6f}\n")
-        for i, ap50 in enumerate(metrics.box.ap50):
-            file.write(f"AP50_class_{i},{ap50:.6f}\n")
+        
+        # Per-Class Metrics
+        for i, (ap50, ap) in enumerate(zip(metrics.box.ap50, metrics.box.ap)):
+            file.write(f"Class_{i}_AP50,{ap50:.6f}\n")
+            file.write(f"Class_{i}_AP,{ap:.6f}\n")
+        
+        # Additional Metrics
+        file.write(f"Precision,{metrics.box.p:.6f}\n")
+        file.write(f"Recall,{metrics.box.r:.6f}\n")
+
 
 
 def evaluate_final_model(dataset_config, base_path, imgsz, batch):
