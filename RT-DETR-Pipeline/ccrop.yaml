@@ -1,5 +1,5 @@
 # Dataset paths
-path: ./ccrop
+path: ./datasets/ccrop
 train: images/train
 val: images/validate
 test: images/test

@@ -1,5 +1,5 @@
 # Dataset paths
-path: ./tomatod
+path: ./datasets/tomatod
 train: images/train
 val: images/validate
 test: images/test

@@ -1,0 +1,9 @@
+# Dataset paths
+path: "/home/jupyter-charles_hinolan@dl-3875b/CamoFarmer/RT-DETR-Pipeline/datasets/ccrop/"
+train: images/train
+val: images/validate
+test: images/test
+
+names:
+  0: Bellpepper
+  1: CHILIPEPPER

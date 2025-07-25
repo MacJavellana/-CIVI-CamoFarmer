@@ -1,4 +1,4 @@
-path: ./camocrops
+path: "/home/jupyter-charles_hinolan@dl-3875b/CamoFarmer/RT-DETR-Pipeline/datasets/tomatod/"
 train: images/combined_trainval
 val: images/validate
 test: images/test
