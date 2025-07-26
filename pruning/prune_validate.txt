@@ -1,5 +1,3 @@
-Help on module prune_validate:
-
 NAME
     prune_validate
 
@@ -73,7 +71,5 @@ FUNCTIONS
             ft_results: Fine-tuning validation results.
             tp_percent (float): True positive percentage.
 
-FILE
-    c:\users\charles\desktop\college\ths2\-civi-camofarmer\pruning\prune_validate.py
 
 

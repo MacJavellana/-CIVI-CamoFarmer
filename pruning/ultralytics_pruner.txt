@@ -1,5 +1,3 @@
-Help on module ultralytics_pruner:
-
 NAME
     ultralytics_pruner
 
@@ -64,7 +62,5 @@ FUNCTIONS
             results_path (str): Path to the CSV file.
             data (list): List of data rows.
 
-FILE
-    c:\users\charles\desktop\college\ths2\-civi-camofarmer\pruning\ultralytics_pruner.py
 
 
