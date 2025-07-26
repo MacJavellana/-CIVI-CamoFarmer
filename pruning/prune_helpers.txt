@@ -1,0 +1,82 @@
+Help on module prune_helpers:
+
+NAME
+    prune_helpers
+
+DESCRIPTION
+    Evaluation and Benchmarking Helpers for Object Detection Models
+    ---------------------------------------------------------------
+    
+    This module provides utility functions for:
+        - Counting parameters and sparsity
+        - Benchmarking inference speed
+        - Computing IoU between bounding boxes
+        - Evaluating true positive rates on datasets with visualizations
+    
+    Functions:
+        count_parameters(model): Count total and non-zero parameters.
+        benchmark_inference(model, iterations, input_size): Measure average inference time.
+        compute_iou(box1, box2): Compute Intersection over Union (IoU) for two boxes.
+        ccrop_tp(txt_file, model, iou_threshold, viz_folder): Evaluate model on file list (CCROP). Separate function for CCROP dataset created because of the specific format of the dataset.
+        dset_tp(image_dir, label_dir, model, iou_threshold, viz_folder): Evaluate model on other related datasets.
+
+FUNCTIONS
+    benchmark_inference(model, iterations=100, input_size=(1, 3, 320, 320))
+        Benchmark average inference time of a model.
+        
+        Args:
+            model (torch.nn.Module): The model to benchmark.
+            iterations (int): Number of iterations for timing.
+            input_size (tuple): Shape of the dummy input (B, C, H, W).
+        
+        Returns:
+            tuple: (average_time_ms, std_time_ms)
+    
+    ccrop_tp(txt_file, model, iou_threshold, viz_folder='visualizations')
+        Evaluate true positives on the CCROP dataset using a list of image paths in a text file.
+        
+        Args:
+            txt_file (str): Path to the .txt file listing image paths.
+            model: Inference model (must support `model(image_path)` call).
+            iou_threshold (float): IoU threshold for true positive classification.
+            viz_folder (str): Directory to save visualization images.
+        
+        Returns:
+            float: True positive percentage relative to ground truth labels.
+    
+    compute_iou(box1, box2)
+        Compute Intersection over Union (IoU) for two bounding boxes.
+        
+        Args:
+            box1 (list or tuple): [x1, y1, x2, y2] of box 1.
+            box2 (list or tuple): [x1, y1, x2, y2] of box 2.
+        
+        Returns:
+            float: IoU value (0.0 - 1.0).
+    
+    count_parameters(model)
+        Count total and non-zero parameters of a model.
+        
+        Args:
+            model (torch.nn.Module): The model to evaluate.
+        
+        Returns:
+            tuple: (total_params, non_zero_params)
+    
+    dset_tp(image_dir, label_dir, model, iou_threshold, viz_folder='visualizations')
+        Evaluate true positives on a non-CCROP dataset directory.
+        
+        Args:
+            image_dir (str): Directory containing images.
+            label_dir (str): Directory containing label .txt files.
+            model: Inference model (must support `model(image_path)` call).
+            iou_threshold (float): IoU threshold for true positive classification.
+            viz_folder (str): Directory to save visualization images.
+        
+        Returns:
+            float: True positive percentage relative to ground truth labels.
+
+FILE
+    c:\users\charles\desktop\college\ths2\-civi-camofarmer\pruning\prune_helpers.py
+
+

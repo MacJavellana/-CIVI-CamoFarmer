@@ -1,0 +1,79 @@
+Help on module prune_validate:
+
+NAME
+    prune_validate
+
+DESCRIPTION
+    Fine-Tune Pruned Models Script
+    ------------------------------
+    
+    Loads a previously pruned YOLO or RT-DETR model, validates it, fine-tunes it on the specified dataset,
+    and evaluates its performance after fine-tuning.
+    
+    Command-line arguments:
+        --folder_name  : Name of the folder where pruning results and pruned model are stored.
+        --model_type   : Type of model to fine-tune ('yolo' or 'rtdetr').
+        --dset_type    : Dataset type ('ccrop', 'tomatod', or 'camocrops').
+    
+    Sample usage:
+        python prune_validate.py --folder_name "YOLO_N_CC_HEAD_50" --model_type "yolo" --dset_type "ccrop"
+    
+    Outputs:
+        - Fine-tuned model weights in the results folder.
+        - Validation results with mAP scores and true positive rates.
+        - Updated CSV log file with fine-tuning performance metrics.
+        - Visualization outputs for model predictions.
+
+FUNCTIONS
+    get_dataset_paths(dset_type: str)
+        Get dataset paths based on dataset type.
+        
+        Args:
+            dset_type (str): Dataset type ('ccrop', 'tomatod', or 'camocrops').
+        
+        Returns:
+            tuple: (data_yaml, test_set, test_imgs)
+    
+    get_training_params(model_type: str, dset_type: str)
+        Get training hyperparameters based on model and dataset type.
+        
+        Args:
+            model_type (str): Either 'yolo' or 'rtdetr'.
+            dset_type (str): Dataset type ('ccrop', 'tomatod', or 'camocrops').
+        
+        Returns:
+            dict: Training parameters.
+    
+    load_pruned_model(model_type: str, model_path: str)
+        Load pruned YOLO or RT-DETR model.
+        
+        Args:
+            model_type (str): Either 'yolo' or 'rtdetr'.
+            model_path (str): Path to the pruned model weights.
+        
+        Returns:
+            Model: Loaded pruned model.
+    
+    main()
+        Main entry point for fine-tuning script.
+    
+    parse_args()
+        Parse command-line arguments.
+        
+        Returns:
+            argparse.Namespace: Parsed arguments.
+    
+    write_results_csv(results_path: str, avg_time: float, std_time: float, ft_results, tp_percent: float)
+        Write fine-tuning results to CSV.
+        
+        Args:
+            results_path (str): Path to the CSV file.
+            avg_time (float): Average inference time.
+            std_time (float): Standard deviation of inference time.
+            ft_results: Fine-tuning validation results.
+            tp_percent (float): True positive percentage.
+
+FILE
+    c:\users\charles\desktop\college\ths2\-civi-camofarmer\pruning\prune_validate.py
+
+

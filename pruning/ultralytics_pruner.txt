@@ -1,0 +1,70 @@
+Help on module ultralytics_pruner:
+
+NAME
+    ultralytics_pruner
+
+DESCRIPTION
+    Pruning Script for YOLO and RT-DETR Models
+    ------------------------------------------
+    
+    Performs L1 unstructured pruning on YOLO or RT-DETR models.
+    It allows pruning specific groups of layers (backbone, neck, head, or all convolutional layers)
+    and saves the pruned model along with pruning statistics.
+    
+    Command-line arguments:
+        --folder_name     : Folder name for storing pruning results.
+        --bmodel_path     : Path to the baseline model weights.
+        --model_type      : Type of model to prune ('yolo' or 'rtdetr').
+        --prune_group     : Layer group to prune ('backbone', 'neck', 'head', 'all').
+        --prune_ratio     : L1 unstructured pruning ratio (float).
+    
+    Sample usage:
+        python ultralytics_pruner.py --folder_name "YOLO_N_CC_HEAD_50" --bmodel_path "runs/detect/ccrop_300n_coare/weights/best.pt" --model_type "yolo" --prune_group "head" --prune_ratio .50
+    
+    Outputs:
+        - Pruned model (.pt file) in the results folder.
+        - CSV log file containing pruning statistics.
+
+FUNCTIONS
+    load_model(model_type: str, model_path: str)
+        Load YOLO or RT-DETR model.
+        
+        Args:
+            model_type (str): Either 'yolo' or 'rtdetr'.
+            model_path (str): Path to the model weights.
+        
+        Returns:
+            tuple: (base_model, inner_model, group_slices)
+    
+    main()
+        Main entry point for pruning script.
+    
+    parse_args()
+        Parse command-line arguments.
+        
+        Returns:
+            argparse.Namespace: Parsed arguments.
+    
+    prune_model(model, prune_group: str, prune_ratio: float, group_slices: dict)
+        Apply L1 unstructured pruning to a model.
+        
+        Args:
+            model (torch.nn.Module): The model to prune.
+            prune_group (str): The group of layers ('backbone', 'neck', 'head', or 'all').
+            prune_ratio (float): The proportion of weights to prune.
+            group_slices (dict): Slice indices for each group.
+        
+        Returns:
+            torch.nn.Module: Pruned model.
+    
+    write_results_csv(results_path: str, data: list)
+        Write pruning results to CSV.
+        
+        Args:
+            results_path (str): Path to the CSV file.
+            data (list): List of data rows.
+
+FILE
+    c:\users\charles\desktop\college\ths2\-civi-camofarmer\pruning\ultralytics_pruner.py
+
+
