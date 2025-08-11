@@ -6,5 +6,3 @@ yolov8-unformatted/
 docs/
 venv/
 docs/_build/
-knowledge_distillation/__pycache__/
-pruning/__pycache__/
