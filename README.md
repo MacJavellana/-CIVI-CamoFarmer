@@ -1,6 +1,6 @@
 # CamoFarmer: A Lightweight Computer Vision Model for Camouflaged Crop Detection
 
-## 📌 Proponents & Adviser
+## Proponents & Adviser
 - **Charles Joseph Hinolan** – [charles_hinolan@dlsu.edu.ph](mailto:charles_hinolan@dlsu.edu.ph)  
 - **Mac Andre Javellana** – [mac_javellana@dlsu.edu.ph](mailto:mac_javellana@dlsu.edu.ph)  
 - **Mari Salvador Lapuz** – [mari_lapuz@dlsu.edu.ph](mailto:mari_lapuz@dlsu.edu.ph)  
@@ -9,7 +9,7 @@
 
 ---
 
-## 📖 Overview
+## Overview
 Camouflaged object detection (COD) has emerged as a key innovation in agriculture, addressing the challenge of identifying crops that blend into their natural environments.  
 This study introduces **CamoFarmer**, a lightweight detection model optimized for camouflaged crop detection in resource-constrained settings.
 
@@ -22,7 +22,7 @@ These techniques aimed to reduce model complexity while maintaining strong detec
 
 ---
 
-## 📊 Key Results
+## Key Results
 Experiments were conducted on **TomatOD**, **CCROP**, and **CamoCrops** datasets.  
 After extensive evaluation, **RT-DETR** was chosen as the base model for **CamoFarmer**.
 
@@ -34,7 +34,7 @@ The final optimized model:
   - Up to **+5% mAP** improvement on some datasets  
   - Minimal accuracy decreases on others
 
- ### 📈 Complete Experiment Results
+ ### Complete Experiment Results
 
 | Model & Strategy | TomatOD mAP50 | Params (M) | FLOPs (G) | CCROP mAP50 | Params (M) | FLOPs (G) | CamoCrops mAP50 | Params (M) | FLOPs (G) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -89,7 +89,7 @@ The final optimized model:
 
 ---
 
-## 📷 Qualitative Results
+## Qualitative Results
 
 ![Qualitative comparison between ground truth and RT-DETR-l with 30% all-layer pruning on TomatOD, CCROP, and CamoCrops](confpaper.png)
 
