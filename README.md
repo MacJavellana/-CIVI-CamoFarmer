@@ -96,6 +96,6 @@ The final optimized model:
 **Figure:**  shows qualitative differences after pruning on RT-DETR-l with 30\% all-convolutional layer pruning. On TomatOD, duplicate detections and occasional misclassifications increase in dense foliage. On CCROP, we observe extra boxes and tighter clusters around single objects, indicating reduced localization precision. On CamoCrops, the main failure mode is missed small or partially occluded crops. Overall, pruning trades computation for accuracy. The effect is strongest where camouflage and occlusion are severe, and the dataset is more complex.
 
 ---
-## 📂 Trained Weights
+## Trained Weights
 Trained model weights are available here:  
 [**Download from Google Drive**](https://drive.google.com/drive/folders/11wQD9p0Oibh5TWHoq-i-MfId-VZ9QUOB?usp=sharing)
