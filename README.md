@@ -29,10 +29,11 @@ CamoFarmer/
 │   ├── prune_helpers.py       # Pruning utility functions
 │   ├── prune_validate.py      # Validation tools for ultralytics-based model validation
 │   └── ultralytics_pruner.py  # YOLOv8 and RT-DETR pruning
-├── backbone_replacement/      # Backbone optimization, each folder having config files of different backbones for each model
+├── backbone_replacement/      # Config files of different backbones for each model
 │   ├── ssd/
 │   ├── rtdetr/ 
 │   └── yolov8/
+├── CamoFarmer User Manual.pdf          # User manual
 └── CamoFarmer Technical Manual.pdf     # Technical manual
 ```
 ---
