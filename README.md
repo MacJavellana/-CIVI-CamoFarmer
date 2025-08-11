@@ -8,8 +8,37 @@
 - **Arren Matthew Antioquia** – [arren.antioquia@dlsu.edu.ph](mailto:arren.antioquia@dlsu.edu.ph)  
 
 ---
+## Project Structure
+```
+CamoFarmer/
+├── knowledge_distillation/     # Knowledge distillation implementations
+│   └── ssd/                   # SSD-based knowledge distillation
+│       ├── main_kd.py        
+│       └── solver_kd.py
+│   └── yolov8/                   # YOLOv8-based knowledge distillation
+│       ├── distill_model.py
+│       ├── distill_train.py       
+│       └── main.py
+│   └── rtdetr/                   # RT-DETR-based knowledge distillation
+│       ├── distill_model.py
+│       ├── distill_train.py       
+│       └── rtdetr_main.py   
+├── pruning/                   # Model pruning techniques
+│   ├── main_prune.py          # Pruning main script (SSD)
+│   ├── solver_prune.py        # Pruning solver (SSD)
+│   ├── prune_helpers.py       # Pruning utility functions
+│   ├── prune_validate.py      # Validation tools for ultralytics-based model validation
+│   └── ultralytics_pruner.py  # YOLOv8 and RT-DETR pruning
+├── backbone_replacement/      # Backbone optimization, each folder having config files of different backbones for each model
+│   ├── ssd/
+│   ├── rtdetr/ 
+│   └── yolov8/
+└── CamoFarmer Technical Manual.pdf     # Technical manual
+```
+---
 
 ## Overview
+
 Camouflaged object detection (COD) has emerged as a key innovation in agriculture, addressing the challenge of identifying crops that blend into their natural environments.  
 This study introduces **CamoFarmer**, a lightweight detection model optimized for camouflaged crop detection in resource-constrained settings.
 
