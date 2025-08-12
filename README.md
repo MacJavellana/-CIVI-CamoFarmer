@@ -128,4 +128,4 @@ The final optimized model:
 ---
 ## Trained Weights
 Trained model weights are available here:  
-[**Download from Google Drive**](https://drive.google.com/drive/folders/11wQD9p0Oibh5TWHoq-i-MfId-VZ9QUOB?usp=sharing)
+[**Download from Google Drive**](https://drive.google.com/drive/folders/1hYYG7Yx3I6IQc3lvQnJBR4SRS5cKBU5H?usp=sharing)
